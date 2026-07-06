@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where London Should Retrofit First</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E0F16; --bg2:#141622; --panel:#181B29; --panel2:#1F2334;
+    --line:#2A2F45; --line2:#363C57;
+    --ink:#EDEFF7; --mut:#9AA1BC; --mut2:#727892;
+    --cool:#2DD4A7;      /* efficient / low potential */
+    --warm:#F5A623;      /* rising heat loss */
+    --hot:#FF5A3C;       /* high heat loss = high carbon */
+    --indigo:#7C6BF0;    /* xgboost */
+    --teal:#2DD4A7;      /* random forest (best) */
+    --amber:#F5A623;     /* logistic */
+    --disp:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--body);
+    line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  ::selection{background:var(--hot);color:#fff}
+
+  /* ---------- scroll progress + nav ---------- */
+  .progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:100;
+    background:linear-gradient(90deg,var(--cool),var(--warm),var(--hot))}
+  nav.dots{position:fixed;right:22px;top:50%;transform:translateY(-50%);
+    z-index:90;display:flex;flex-direction:column;gap:14px}
+  nav.dots a{width:9px;height:9px;border-radius:50%;background:var(--line2);
+    transition:all .3s;position:relative}
+  nav.dots a.active{background:var(--hot);box-shadow:0 0 0 4px rgba(255,90,60,.18)}
+  nav.dots a span{position:absolute;right:20px;top:50%;transform:translateY(-50%);
+    white-space:nowrap;font:500 11px/1 var(--mono);color:var(--mut);
+    background:var(--panel);padding:5px 9px;border:1px solid var(--line);
+    border-radius:5px;opacity:0;pointer-events:none;transition:opacity .25s}
+  nav.dots a:hover span{opacity:1}
+  @media (max-width:820px){nav.dots{display:none}}
+
+  /* ---------- section frame ---------- */
+  section{min-height:100vh;padding:clamp(48px,7vh,110px) clamp(24px,7vw,120px);
+    display:flex;flex-direction:column;justify-content:center;position:relative;
+    border-bottom:1px solid var(--line)}
+  .eyebrow{font:600 12px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;
+    color:var(--warm);display:flex;align-items:center;gap:12px;margin-bottom:22px}
+  .eyebrow::before{content:attr(data-n);color:var(--mut2);
+    border:1px solid var(--line2);border-radius:4px;padding:4px 7px;font-size:11px}
+  h1{font-family:var(--disp);font-weight:700;letter-spacing:-.02em;line-height:1.02}
+  h2{font-family:var(--disp);font-weight:600;font-size:clamp(28px,4.2vw,52px);
+    letter-spacing:-.015em;line-height:1.06;margin-bottom:8px}
+  h2 em{font-style:normal;color:var(--hot)}
+  .lead{font-size:clamp(16px,1.5vw,20px);color:var(--mut);max-width:64ch;margin-top:18px}
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+  /* ---------- HERO ---------- */
+  #hero{justify-content:center;overflow:hidden}
+  .thermal-field{position:absolute;inset:0;z-index:0;
+    background:
+      radial-gradient(circle at 18% 30%,rgba(255,90,60,.28),transparent 30%),
+      radial-gradient(circle at 72% 22%,rgba(245,166,35,.22),transparent 32%),
+      radial-gradient(circle at 40% 78%,rgba(45,212,167,.18),transparent 34%),
+      radial-gradient(circle at 85% 68%,rgba(124,107,240,.20),transparent 30%);
+    filter:blur(8px);animation:drift 22s ease-in-out infinite alternate}
+  @keyframes drift{to{transform:scale(1.15) translate(2%,-2%)}}
+  @media (prefers-reduced-motion:reduce){.thermal-field{animation:none}}
+  .hero-inner{position:relative;z-index:2;max-width:1000px}
+  #hero h1{font-size:clamp(40px,7.5vw,104px)}
+  #hero h1 .hot{background:linear-gradient(100deg,var(--warm),var(--hot));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero-sub{font-size:clamp(16px,1.7vw,22px);color:var(--mut);margin-top:26px;max-width:60ch}
+  .hero-tag{display:inline-flex;align-items:center;gap:10px;margin-bottom:30px;
+    font:500 13px/1 var(--mono);color:var(--cool);border:1px solid var(--line2);
+    padding:9px 14px;border-radius:100px;background:rgba(45,212,167,.06)}
+  .hero-tag b{width:8px;height:8px;border-radius:50%;background:var(--cool);
+    box-shadow:0 0 12px var(--cool)}
+  .scrollcue{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+    z-index:2;font:500 11px/1 var(--mono);letter-spacing:.2em;color:var(--mut2);
+    display:flex;flex-direction:column;align-items:center;gap:10px;text-transform:uppercase}
+  .scrollcue i{width:1px;height:34px;background:linear-gradient(var(--mut2),transparent);animation:cue 1.8s infinite}
+  @keyframes cue{0%,100%{opacity:.3;transform:scaleY(.7)}50%{opacity:1;transform:scaleY(1)}}
+
+  /* ---------- generic layout ---------- */
+  .grid{display:grid;gap:20px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  @media (max-width:820px){.g3,.g2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:26px 24px;position:relative}
+  .card h3{font-family:var(--disp);font-weight:600;font-size:19px;margin-bottom:8px}
+  .card p{color:var(--mut);font-size:15px}
+  .icowrap{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;
+    margin-bottom:16px;font-size:20px}
+
+  /* stat callouts */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media (max-width:820px){.stats{grid-template-columns:1fr}}
+  .stat{background:var(--bg2);padding:34px 28px}
+  .stat .num{font-family:var(--disp);font-weight:700;font-size:clamp(40px,5.5vw,64px);
+    line-height:1;letter-spacing:-.02em;
+    background:linear-gradient(120deg,var(--warm),var(--hot));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat .lbl{color:var(--mut);font-size:14px;margin-top:12px;max-width:26ch}
+
+  /* reframe two-axis */
+  .axis-box{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+  .axis-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
+  @media (max-width:820px){.axis-row{grid-template-columns:1fr}}
+  .axis-cell{background:var(--panel);padding:26px 24px}
+  .axis-cell.keep{border-top:2px solid var(--cool)}
+  .axis-cell.drop{border-top:2px solid var(--hot)}
+  .tagk,.tagd{font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+    padding:5px 9px;border-radius:5px;display:inline-block;margin-bottom:14px}
+  .tagk{color:var(--cool);background:rgba(45,212,167,.1)}
+  .tagd{color:var(--hot);background:rgba(255,90,60,.1)}
+  .axis-cell h3{font-family:var(--disp);font-size:20px;margin-bottom:10px;font-weight:600}
+  .axis-cell p{color:var(--mut);font-size:15px}
+
+  /* pipeline / method steps */
+  .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:10px}
+  @media (max-width:820px){.flow{grid-template-columns:1fr}}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;position:relative}
+  .step .k{font:600 12px/1 var(--mono);color:var(--warm);letter-spacing:.1em}
+  .step h3{font-family:var(--disp);font-size:18px;margin:12px 0 8px;font-weight:600}
+  .step p{color:var(--mut);font-size:14.5px}
+  .formula{font-family:var(--mono);font-size:clamp(14px,1.7vw,20px);line-height:1.9;
+    background:var(--bg2);border:1px solid var(--line);border-radius:14px;
+    padding:28px 26px;margin-top:24px;color:var(--ink);overflow-x:auto}
+  .formula .c{color:var(--cool)} .formula .h{color:var(--hot)} .formula .w{color:var(--warm)}
+  .formula .m{color:var(--mut)}
+
+  /* feature split (faithful to deck: MCMC vs ML modeling) */
+  .feat-split{display:grid;grid-template-columns:.85fr 2.15fr;gap:18px}
+  @media (max-width:900px){.feat-split{grid-template-columns:1fr}}
+  .fset{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+  .fhead{padding:18px 20px;border-bottom:1px solid var(--line)}
+  .fhead .bt{font-family:var(--disp);font-weight:600;font-size:16px}
+  .fhead .bs{font:500 11px/1.4 var(--mono);color:var(--mut2);margin-top:6px;display:block}
+  .fhead.mcmc{background:linear-gradient(180deg,rgba(124,107,240,.14),transparent)}
+  .fhead.mlm{background:linear-gradient(180deg,rgba(245,166,35,.12),transparent)}
+  .fset ul{list-style:none;padding:16px 20px 20px;margin:0}
+  .fset.mlm ul{columns:3;column-gap:26px}
+  @media (max-width:900px){.fset.mlm ul{columns:2}}
+  @media (max-width:560px){.fset.mlm ul{columns:1}}
+  .fset li{font-size:12.5px;color:var(--mut);padding:5px 0;break-inside:avoid;
+    display:flex;gap:8px;align-items:flex-start}
+  .fset li::before{content:'';width:5px;height:5px;border-radius:2px;margin-top:6px;flex:0 0 auto}
+  .fset.mcmc li::before{background:var(--indigo)}
+  .fset.mlm li::before{background:var(--warm)}
+
+  /* charts */
+  .chartwrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 24px}
+  .chartwrap h3{font-family:var(--disp);font-size:17px;font-weight:600;margin-bottom:4px}
+  .chartwrap .cap{color:var(--mut2);font:500 12px/1.4 var(--mono);margin-bottom:20px}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px}
+  .legend span{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut)}
+  .legend i{width:12px;height:12px;border-radius:3px}
+  .acc-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:20px}
+  @media (max-width:820px){.acc-cards{grid-template-columns:repeat(2,1fr)}}
+  .acc{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:18px 16px;text-align:center}
+  .acc .v{font-family:var(--disp);font-weight:700;font-size:26px}
+  .acc .n{font:500 11px/1.3 var(--mono);color:var(--mut2);margin-top:8px;text-transform:uppercase;letter-spacing:.06em}
+  .acc.best{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal) inset}
+  .acc.best .v{color:var(--teal)}
+
+  /* map */
+  .maprow{display:grid;grid-template-columns:1.3fr .9fr;gap:28px;align-items:center}
+  @media (max-width:900px){.maprow{grid-template-columns:1fr}}
+  #hexmap{width:100%;height:auto;background:var(--bg2);border:1px solid var(--line);border-radius:14px}
+  .mapkey{display:flex;flex-direction:column;gap:16px}
+  .gradbar{height:14px;border-radius:8px;
+    background:linear-gradient(90deg,var(--cool),#8FD48A,var(--warm),var(--hot))}
+  .gradlbls{display:flex;justify-content:space-between;font:500 11px/1 var(--mono);color:var(--mut2);margin-top:8px}
+  .keyitem{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--mut)}
+  .keyitem b{color:var(--ink);font-weight:600}
+  .ring-demo{width:20px;height:20px;border-radius:5px;flex:0 0 auto;margin-top:2px;
+    background:var(--warm);box-shadow:0 0 0 2px var(--bg2),0 0 0 4px #fff}
+
+  .note{font:500 12px/1.5 var(--mono);color:var(--mut2);margin-top:18px;
+    border-left:2px solid var(--line2);padding-left:14px}
+
+  /* way forward */
+  .wf{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media (max-width:820px){.wf{grid-template-columns:1fr}}
+
+  footer{padding:70px clamp(24px,7vw,120px);background:var(--bg2);text-align:center;border-bottom:0}
+
+  /* repo CTA */
+  .cta{display:inline-flex;align-items:center;gap:11px;font-family:var(--disp);
+    font-weight:600;font-size:16px;color:#0E0F16;text-decoration:none;
+    padding:15px 26px;border-radius:100px;position:relative;
+    background:linear-gradient(100deg,var(--cool),var(--warm) 55%,var(--hot));
+    box-shadow:0 8px 30px -8px rgba(255,90,60,.5);transition:transform .2s,box-shadow .2s}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 14px 40px -10px rgba(255,90,60,.6)}
+  .cta:focus-visible{outline:2px solid #fff;outline-offset:3px}
+  .cta svg{width:20px;height:20px;fill:#0E0F16;flex:0 0 auto}
+  .cta .arrow{transition:transform .2s}
+  .cta:hover .arrow{transform:translateX(3px)}
+  .cta-meta{font:500 12px/1 var(--mono);color:var(--mut2);margin-top:16px;
+    display:flex;align-items:center;justify-content:center;gap:8px}
+  .cta-meta a{color:var(--cool);text-decoration:none;border-bottom:1px solid var(--line2)}
+  .cta-meta a:hover{border-color:var(--cool)}
+  .repo-pill{display:inline-flex;align-items:center;gap:9px;margin-top:20px;
+    font:500 13px/1 var(--mono);color:var(--mut);text-decoration:none;
+    border:1px solid var(--line2);padding:9px 15px;border-radius:100px;
+    background:rgba(255,255,255,.02);transition:border-color .2s,color .2s}
+  .repo-pill:hover{border-color:var(--cool);color:var(--ink)}
+  .repo-pill:focus-visible{outline:2px solid var(--cool);outline-offset:3px}
+  .repo-pill svg{width:16px;height:16px;fill:currentColor}
+  footer .big{font-family:var(--disp);font-weight:700;font-size:clamp(28px,4vw,46px);
+    letter-spacing:-.02em;line-height:1.1;margin-bottom:16px}
+  footer .big em{font-style:normal;
+    background:linear-gradient(100deg,var(--cool),var(--warm),var(--hot));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  footer p{color:var(--mut);max-width:56ch;margin:0 auto}
+  .src{font:500 11px/1.6 var(--mono);color:var(--mut2);margin-top:30px}
+</style>
+</head>
+<body>
+<div class="progress" id="prog"></div>
+<nav class="dots" id="dots"></nav>
+
+<!-- 0 HERO -->
+<section id="hero">
+  <div class="thermal-field"></div>
+  <div class="hero-inner">
+    <span class="hero-tag reveal"><b></b>LAEP DataHub · London Decarbonisation Challenge</span>
+    <h1 class="reveal">Where should London<br>retrofit <span class="hot">first?</span></h1>
+    <p class="hero-sub reveal">London's buildings emit 60%+ of the city's carbon. We use the London Building Stock Model to find the homes where a retrofit removes the most carbon per pound — and put social housing at the front of the queue.</p>
+    <a class="repo-pill reveal" href="https://github.com/sajid-ahmed1/LesserLondonAuthority/tree/main" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      sajid-ahmed1/LesserLondonAuthority
+    </a>
+  </div>
+  <div class="scrollcue">Scroll<i></i></div>
+</section>
+
+<!-- 1 THE BRIEF -->
+<section id="brief">
+  <div class="eyebrow reveal" data-n="01">The challenge</div>
+  <h2 class="reveal">Identify buildings with high <em>retrofit potential</em></h2>
+  <p class="lead reveal">Set by Hong Chen, Product Manager on the LAEP DataHub. The ask, in one line: find the residential buildings — especially social housing — where making the fabric more efficient delivers the biggest cut in heat demand, so surveys and funding go to the right doors first.</p>
+  <div class="grid g3 reveal" style="margin-top:38px">
+    <div class="card">
+      <div class="icowrap" style="background:rgba(255,90,60,.12)">🎯</div>
+      <h3>The target</h3>
+      <p>Residential buildings with high retrofit potential, prioritising social housing.</p>
+    </div>
+    <div class="card">
+      <div class="icowrap" style="background:rgba(45,212,167,.12)">🗺️</div>
+      <h3>The techniques</h3>
+      <p>Geographic Information Systems and data linking across public datasets.</p>
+    </div>
+    <div class="card">
+      <div class="icowrap" style="background:rgba(245,166,35,.12)">🏗️</div>
+      <h3>The starting data</h3>
+      <p>London Building Stock Model v2, plus any dataset on the LAEP DataHub.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2 WHY IT MATTERS -->
+<section id="why">
+  <div class="eyebrow reveal" data-n="02">Why it matters</div>
+  <h2 class="reveal">Fabric first is the cheapest carbon</h2>
+  <p class="lead reveal">An efficient home holds its heat, so it burns less fuel to stay warm — less fuel is less carbon. Better data <em>before</em> the survey is where the leverage is.</p>
+  <div class="stats reveal" style="margin-top:38px">
+    <div class="stat"><div class="num">60%</div><div class="lbl">of the capital's emissions come from London's building stock</div></div>
+    <div class="stat"><div class="num">37%</div><div class="lbl">cut in domestic heat demand needed for London to reach Net Zero</div></div>
+    <div class="stat"><div class="num">50%</div><div class="lbl">of retrofit specs were found inappropriate once a survey was done</div></div>
+  </div>
+  <div class="grid g3 reveal" style="margin-top:22px">
+    <div class="card"><h3>Macro instability</h3><p>COVID and the invasion of Ukraine sent energy prices and volatility soaring — exposing how much of the stock is unprepared.</p></div>
+    <div class="card"><h3>Heat, not hardship</h3><p>The carbon lives in the fabric: leaky walls, old build forms, solid-wall homes. That's what a retrofit fixes.</p></div>
+    <div class="card"><h3>Target before you survey</h3><p>Half of specs miss. Pointing surveys at genuinely high-potential homes is the transformation the DataHub enables.</p></div>
+  </div>
+</section>
+
+<!-- 3 THE REFRAME -->
+<section id="reframe">
+  <div class="eyebrow reveal" data-n="03">The bridge</div>
+  <h2 class="reveal">Fuel poverty <em>is</em> a retrofit signal</h2>
+  <p class="lead reveal">A home only counts as fuel-poor if its efficiency sits in band D–G — a hard gate in England's LILEE metric. So predicting fuel-poverty risk surfaces exactly the leaky, low-efficiency stock that a retrofit exists to fix.</p>
+  <div class="axis-box reveal" style="margin-top:34px">
+    <div class="axis-row">
+      <div class="axis-cell keep">
+        <span class="tagk">The link</span>
+        <h3>Fuel-poor → inefficient</h3>
+        <p>By definition a fuel-poor household lives in a band D–G property. Rank homes by fuel-poverty risk and you are, in effect, ranking them by fabric inefficiency — the raw material of a retrofit programme.</p>
+      </div>
+      <div class="axis-cell keep">
+        <span class="tagk">The payoff</span>
+        <h3>Inefficient → decarbonise</h3>
+        <p>Those same homes burn the most fuel to stay warm. Retrofitting their fabric is where each pound removes the most carbon — which is exactly what the brief asks us to find.</p>
+      </div>
+    </div>
+  </div>
+  <p class="note reveal">This is why a fuel-poverty model answers a decarbonisation question — both point at the same low-efficiency buildings. Income helps sharpen the social-housing priority; the fabric is what drives the carbon saving.</p>
+</section>
+
+<!-- 4 DATA & LINKING -->
+<section id="data">
+  <div class="eyebrow reveal" data-n="04">Data &amp; linking</div>
+  <h2 class="reveal">One spine, many joins</h2>
+  <p class="lead reveal">We start from the London Building Stock Model v2 and <em>link</em> it — the technique the brief names — to EPC records, sub-national consumption, and long-run climate, keyed on LMK, postcode and local-authority codes.</p>
+  <div class="grid g2 reveal" style="margin-top:34px">
+    <div class="card"><div class="icowrap" style="background:rgba(255,90,60,.12)">🏢</div><h3>Building Stock Model v2</h3><p>The spine. Built form, property type, construction age, floor area, wall &amp; roof fabric — building-level, London-wide.</p></div>
+    <div class="card"><div class="icowrap" style="background:rgba(245,166,35,.12)">📄</div><h3>EPC + FPEER</h3><p>Current energy efficiency, insulation, current CO₂ and consumption — joined on LMK key.</p></div>
+    <div class="card"><div class="icowrap" style="background:rgba(45,212,167,.12)">🌡️</div><h3>Climate &amp; heat demand</h3><p>Heating degree days and winter-temperature thresholds (2001–2020) — the demand side of the fabric equation.</p></div>
+    <div class="card"><div class="icowrap" style="background:rgba(124,107,240,.12)">📍</div><h3>Geography for GIS</h3><p>Postcode district, LA code, area and density — the join keys that let every result land on a London map.</p></div>
+  </div>
+</section>
+
+<!-- 5 FEATURE STRATEGY -->
+<section id="features">
+  <div class="eyebrow reveal" data-n="05">Feature engineering</div>
+  <h2 class="reveal">Two feature sets, kept disjoint</h2>
+  <p class="lead reveal">We engineered variables across building fabric, climate, energy use, socioeconomics and geography, then split them into two non-overlapping sets: the variables the MCMC prior uses to <em>generate</em> the target, held apart from the variables the ML models use to <em>predict</em> it — so no signal leaks from target to model.</p>
+  <div class="feat-split reveal" style="margin-top:32px">
+    <div class="fset mcmc">
+      <div class="fhead mcmc"><span class="bt">MCMC Variables</span><span class="bs">generate the synthetic risk band</span></div>
+      <ul>
+        <li>LMK Key</li>
+        <li>EPC Rating (Numeric)</li>
+        <li>Urban or Rural Classification</li>
+        <li>Region Name</li>
+        <li>Property Type</li>
+        <li>Construction Age Band</li>
+        <li>Total Floor Area</li>
+        <li>Fuel Category</li>
+        <li>Walls Energy Efficiency</li>
+        <li>Tenure</li>
+      </ul>
+    </div>
+    <div class="fset mlm">
+      <div class="fhead mlm"><span class="bt">ML Modeling Variables</span><span class="bs">predict the risk band</span></div>
+      <ul>
+        <li>LMK Key</li>
+        <li>Current Energy Efficiency</li>
+        <li>Energy Consumption (Current)</li>
+        <li>CO₂ Emissions (Current)</li>
+        <li>Built Form</li>
+        <li>Local Authority Code</li>
+        <li>Lodgement Date</li>
+        <li>Postcode District</li>
+        <li>Insulation Score</li>
+        <li>Local Authority</li>
+        <li>Net Income (2024)</li>
+        <li>Income Before Housing Costs (2024)</li>
+        <li>Income After Housing Costs (2024)</li>
+        <li>Percentage of Low-Income Households</li>
+        <li>Unemployment Rate</li>
+        <li>Index of Multiple Deprivation (2019)</li>
+        <li>Heating Degree Days (Median)</li>
+        <li>Winter Avg Temp (Median, 2001–2020)</li>
+        <li>Winter Avg Temp (1.5°C Threshold)</li>
+        <li>Winter Avg Temp (2.0°C Threshold)</li>
+        <li>Winter Avg Temp (2.5°C Threshold)</li>
+        <li>Winter Avg Temp (3.5°C Threshold)</li>
+        <li>Winter Avg Temp (4.0°C Threshold)</li>
+        <li>Winter Avg Temp (5.5°C Threshold)</li>
+        <li>Minimum Winter Temp (Median)</li>
+        <li>Population (2024)</li>
+        <li>Child Population</li>
+        <li>Senior Population</li>
+        <li>Working-Age Population</li>
+        <li>Average Household Size (2023)</li>
+        <li>Area (km²)</li>
+        <li>Population Density</li>
+        <li>Age Dependency Ratio</li>
+        <li>Total Floor Area</li>
+        <li>Electricity – Avg Variable Price/kWh</li>
+        <li>Electricity – Avg Annual Fixed Cost</li>
+        <li>Gas – Avg Variable Price/kWh</li>
+        <li>Gas – Avg Annual Fixed Cost</li>
+        <li>Winter Fuel Payment Households (2023)</li>
+        <li>Avg Annual Fuel Bill (Individual)</li>
+        <li>Avg Annual Fuel Bill (Local Average)</li>
+        <li>Avg Electricity Consumption / Household (LA)</li>
+        <li>Avg Gas Consumption / Meter (LA)</li>
+        <li>Fuel Bill Difference</li>
+        <li>Fuel Cost to Income Ratio</li>
+        <li>Floor Area per Room</li>
+        <li>CO₂ Emissions per m²</li>
+        <li>Energy Consumption per m²</li>
+        <li>Energy Consumption per Room</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note reveal">"Carefully avoiding possible signal leak" — the target-generation set and the modelling set share no predictive features, so the MCMC target can't leak into the ML models.</p>
+</section>
+
+<!-- 6 METHOD -->
+<section id="method">
+  <div class="eyebrow reveal" data-n="06">Method</div>
+  <h2 class="reveal">A synthetic target, then a leak-guarded model</h2>
+  <p class="lead reveal">No building carries a ground-truth risk label, so we generate one. Aggregate LILEE probabilities become priors for a Bayesian MCMC simulation that assigns every home a fuel-poverty risk band. Machine-learning models then learn to predict that band from the separate modelling feature set.</p>
+  <div class="flow reveal" style="margin-top:26px">
+    <div class="step"><div class="k">STEP A</div><h3>Priors from LILEE</h3><p>Local-authority fuel-poverty rates seed the model — the strongest public signal of where risk concentrates.</p></div>
+    <div class="step"><div class="k">STEP B</div><h3>MCMC synthetic target</h3><p>A Bayesian simulation, run to convergence at 1,000 iterations, assigns each home a risk band: Less Likely → Highly Likely.</p></div>
+    <div class="step"><div class="k">STEP C</div><h3>Predict &amp; guard the leak</h3><p>XGBoost, Random Forest, DNN and multinomial LR predict the band — each trained twice, with and without current energy efficiency (Pipeline A / B), to isolate any leakage.</p></div>
+  </div>
+  <p class="note reveal">The MCMC feature set and the ML modelling set are disjoint by design — "carefully avoiding possible signal leak."</p>
+</section>
+
+<!-- 7 RESULTS -->
+<section id="results">
+  <div class="eyebrow reveal" data-n="07">Results</div>
+  <h2 class="reveal">Random Forest leads the field</h2>
+  <p class="lead reveal">Across the leakage-guarded pipeline, tree ensembles separate high- from low-potential stock most cleanly. Metrics shown for Pipeline A (fabric features included).</p>
+  <div class="chartwrap reveal" style="margin-top:30px">
+    <h3>Model performance — Pipeline A</h3>
+    <div class="cap">accuracy · macro-F1 · sensitivity · specificity · kappa · ROC-AUC</div>
+    <svg id="barchart" viewBox="0 0 920 360" role="img" aria-label="Grouped bar chart comparing XGBoost, Random Forest and Logistic Regression"></svg>
+    <div class="legend">
+      <span><i style="background:var(--indigo)"></i>XGBoost</span>
+      <span><i style="background:var(--teal)"></i>Random Forest</span>
+      <span><i style="background:var(--amber)"></i>Logistic Regression</span>
+    </div>
+  </div>
+  <div class="acc-cards reveal">
+    <div class="acc best"><div class="v">71.6%</div><div class="n">Random Forest · A</div></div>
+    <div class="acc"><div class="v">58.9%</div><div class="n">Deep NN · A</div></div>
+    <div class="acc"><div class="v">55.3%</div><div class="n">Deep NN · B</div></div>
+    <div class="acc"><div class="v">53.3%</div><div class="n">Multinom. LR · A</div></div>
+    <div class="acc"><div class="v">52.1%</div><div class="n">Multinom. LR · B</div></div>
+  </div>
+</section>
+
+<!-- 8 SPATIAL OUTPUT -->
+<section id="map">
+  <div class="eyebrow reveal" data-n="08">The deliverable</div>
+  <h2 class="reveal">A retrofit-priority map of London</h2>
+  <p class="lead reveal">The predicted risk band lands where the brief wants it — on a map. Hot cells are high-risk, low-efficiency stock; a ring marks concentrations of social housing to survey first.</p>
+  <div class="maprow reveal" style="margin-top:30px">
+    <svg id="hexmap" viewBox="0 0 560 420" role="img" aria-label="Illustrative thermal grid of London retrofit priority by area"></svg>
+    <div class="mapkey">
+      <div>
+        <div class="gradbar"></div>
+        <div class="gradlbls"><span>already efficient</span><span>high potential</span></div>
+      </div>
+      <div class="keyitem"><span class="ring-demo"></span><span><b>Ringed cells</b> = high social-housing share. These jump the queue: public funding, landlords who can act at scale, health co-benefits.</span></div>
+      <div class="keyitem"><span style="width:20px;height:20px;border-radius:5px;background:var(--cool);flex:0 0 auto;margin-top:2px"></span><span>Cool cells are near band C — low carbon to gain, deprioritised despite any income need.</span></div>
+      <p class="note" style="margin-top:6px">Illustrative layout — cell values are schematic pending the LBSM v2 join. Structure and colour logic are the real output.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9 WAY FORWARD -->
+<section id="forward">
+  <div class="eyebrow reveal" data-n="09">Way forward</div>
+  <h2 class="reveal">From 10k rows to all of London</h2>
+  <div class="wf reveal" style="margin-top:30px">
+    <div class="card">
+      <div class="icowrap" style="background:rgba(245,166,35,.12)">⚙️</div>
+      <h3>Scale the compute</h3>
+      <p>We modelled 10,000 of 2.6M collected rows on limited hardware. Distributed training unlocks the full stock and the 23-way LILEE supplementary segments we had to leave out.</p>
+    </div>
+    <div class="card">
+      <div class="icowrap" style="background:rgba(124,107,240,.12)">🔬</div>
+      <h3>MCMC-Bayesian extension</h3>
+      <p>Prior studies stop at local-authority-level probability. Our Markov-Chain Monte Carlo prior pushes prediction to the building level from a different feature set — a genuinely novel step, kept as a research track.</p>
+    </div>
+  </div>
+</section>
+
+<footer id="close">
+  <div class="big">Point surveys at the doors that <em>matter most</em>.</div>
+  <p>A carbon-honest target, a social-housing-first queue, and a map London can act on tomorrow.</p>
+  <div style="margin-top:34px">
+    <a class="cta" href="https://github.com/sajid-ahmed1/LesserLondonAuthority/tree/main" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      Explore the code on GitHub
+      <span class="arrow">→</span>
+    </a>
+    <div class="cta-meta">
+      Full pipeline, models &amp; data at
+      <a href="https://github.com/sajid-ahmed1/LesserLondonAuthority/tree/main" target="_blank" rel="noopener">sajid-ahmed1/LesserLondonAuthority</a>
+    </div>
+  </div>
+  <div class="src">Sources: LAEP DataHub · London Building Stock Model v2 · EPC/FPEER · BEIS sub-national energy · Met Office climate (2001–2020). Fuel-poverty definition: LILEE, DESNZ.</div>
+</footer>
+
+<script>
+  /* progress bar */
+  const prog=document.getElementById('prog');
+  addEventListener('scroll',()=>{const h=document.documentElement;
+    prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';},{passive:true});
+
+  /* dot nav */
+  const secs=[...document.querySelectorAll('section, footer')];
+  const names={hero:'Start',brief:'Challenge',why:'Why',reframe:'Reframe',data:'Data',features:'Features',method:'Method',results:'Results',map:'Map',forward:'Forward',close:'Close'};
+  const dots=document.getElementById('dots');
+  secs.forEach(s=>{const a=document.createElement('a');a.href='#'+s.id;
+    a.innerHTML='<span>'+(names[s.id]||s.id)+'</span>';a.dataset.id=s.id;dots.appendChild(a);});
+  const dotEls=[...dots.children];
+
+  /* reveal + active dot */
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('in');
+      if(e.intersectionRatio>.5){dotEls.forEach(d=>d.classList.toggle('active',d.dataset.id===e.target.id));}
+    }});},{threshold:[.15,.55]});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  const io2=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.5)
+    dotEls.forEach(d=>d.classList.toggle('active',d.dataset.id===e.target.id));});},{threshold:.5});
+  secs.forEach(s=>io2.observe(s));
+
+  /* ---- grouped bar chart ---- */
+  (function(){
+    const data=[
+      {m:'Accuracy',   v:[.53,.72,.53]},
+      {m:'Macro F1',   v:[.52,.71,.53]},
+      {m:'Sensitivity',v:[.53,.72,.53]},
+      {m:'Specificity',v:[.88,.93,.88]},
+      {m:'Kappa',      v:[.41,.65,.42]},
+      {m:'ROC-AUC',    v:[.83,.91,.83]},
+    ];
+    const cols=['#7C6BF0','#2DD4A7','#F5A623'];
+    const W=920,H=360,padL=44,padR=16,padB=54,padT=16;
+    const plotW=W-padL-padR, plotH=H-padT-padB;
+    const svg=document.getElementById('barchart');
+    let s='';
+    /* gridlines */
+    for(let g=0;g<=5;g++){const y=padT+plotH-(g/5)*plotH;
+      s+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#2A2F45" stroke-width="1"/>`;
+      s+=`<text x="${padL-8}" y="${y+4}" text-anchor="end" fill="#727892" font-size="11" font-family="JetBrains Mono">${(g*0.2).toFixed(1)}</text>`;}
+    const groupW=plotW/data.length, barW=Math.min(20,groupW/4.2), gap=6;
+    data.forEach((d,i)=>{
+      const gx=padL+i*groupW+groupW/2;
+      const total=3*barW+2*gap, start=gx-total/2;
+      d.v.forEach((val,j)=>{
+        const bh=val*plotH, x=start+j*(barW+gap), y=padT+plotH-bh;
+        s+=`<rect class="bar" x="${x}" y="${padT+plotH}" width="${barW}" height="0" rx="3" fill="${cols[j]}">
+             <animate attributeName="height" to="${bh}" dur="0.9s" begin="0.1s" fill="freeze" calcMode="spline" keySplines="0.2 0.7 0.2 1" keyTimes="0;1" values="0;${bh}"/>
+             <animate attributeName="y" to="${y}" dur="0.9s" begin="0.1s" fill="freeze" calcMode="spline" keySplines="0.2 0.7 0.2 1" keyTimes="0;1" values="${padT+plotH};${y}"/></rect>`;
+      });
+      s+=`<text x="${gx}" y="${H-padB+22}" text-anchor="middle" fill="#9AA1BC" font-size="12" font-family="Inter">${d.m}</text>`;
+    });
+    svg.innerHTML=s;
+  })();
+
+  /* ---- illustrative thermal hex-ish grid map ---- */
+  (function(){
+    const svg=document.getElementById('hexmap');
+    const cols=11, rows=8, cw=48, ch=48, ox=20, oy=20;
+    /* a soft radial "heat" field centred off-centre to look like real clustering */
+    function heat(c,r){
+      const cx=3.2, cy=4.4, cx2=8.5, cy2=2.6;
+      const d1=Math.hypot(c-cx,r-cy)/6, d2=Math.hypot(c-cx2,r-cy2)/5.5;
+      let v=1-Math.min(d1,d2*1.1);
+      v+=(Math.sin(c*1.7+r*0.9)*0.08);
+      return Math.max(0,Math.min(1,v));
+    }
+    function color(v){
+      /* teal -> green -> amber -> hot */
+      const stops=[[45,212,167],[143,212,138],[245,166,35],[255,90,60]];
+      const t=v*(stops.length-1), i=Math.floor(t), f=t-i;
+      const a=stops[i], b=stops[Math.min(i+1,stops.length-1)];
+      const m=k=>Math.round(a[k]+(b[k]-a[k])*f);
+      return `rgb(${m(0)},${m(1)},${m(2)})`;
+    }
+    let s='',seed=7;
+    const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+      const stagger=(r%2)*(cw/2);
+      const x=ox+c*cw+stagger, y=oy+r*(ch*0.86);
+      if(x>540-cw*0.2) continue;
+      const v=heat(c,r);
+      const social = v>0.55 && rnd()>0.6;
+      s+=`<rect x="${x}" y="${y}" width="${cw-6}" height="${ch-6}" rx="9"
+            fill="${color(v)}" opacity="0.92">
+            <animate attributeName="opacity" values="0;0.92" dur="0.6s" begin="${(r*cols+c)*0.008}s" fill="freeze"/></rect>`;
+      if(social){
+        s+=`<rect x="${x-2}" y="${y-2}" width="${cw-2}" height="${ch-2}" rx="11"
+              fill="none" stroke="#ffffff" stroke-width="2" opacity="0.9">
+              <animate attributeName="opacity" values="0;0.9" dur="0.5s" begin="${0.5+(r*cols+c)*0.008}s" fill="freeze"/></rect>`;
+      }
+    }
+    svg.innerHTML=s;
+  })();
+</script>
+</body>
+</html>
